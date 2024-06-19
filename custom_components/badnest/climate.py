@@ -15,17 +15,17 @@ from homeassistant.components.climate.const import (
     SUPPORT_FAN_MODE,
     SUPPORT_PRESET_MODE,
     SUPPORT_TARGET_TEMPERATURE,
-    ClimateEntityFeature.TARGET_TEMPERATURE_RANGE,
-    ClimateEntityFeature.TARGET_HUMIDITY,
+    SUPPORT_TARGET_TEMPERATURE_RANGE,
+    SUPPORT_TARGET_HUMIDITY,
     PRESET_ECO,
     PRESET_NONE,
-    HVACAction.HEATING,
-    HVACAction.IDLE,
-    HVACAction.COOLING,
+    CURRENT_HVAC_HEAT,
+    CURRENT_HVAC_IDLE,
+    CURRENT_HVAC_COOL,
 )
 from homeassistant.const import (
     ATTR_TEMPERATURE,
-    UnitOfTemperature.CELSIUS,
+    TEMP_CELSIUS,
 )
 
 from .const import (
@@ -46,9 +46,9 @@ MODE_HASS_TO_NEST = {
 }
 
 ACTION_NEST_TO_HASS = {
-    "off": HVACAction.IDLE,
-    "heating": HVACAction.HEATING,
-    "cooling": HVACAction.COOLING,
+    "off": CURRENT_HVAC_IDLE,
+    "heating": CURRENT_HVAC_HEAT,
+    "cooling": CURRENT_HVAC_COOL,
 }
 
 MODE_NEST_TO_HASS = {v: k for k, v in MODE_HASS_TO_NEST.items()}
@@ -84,7 +84,7 @@ class NestClimate(ClimateEntity):
     def __init__(self, device_id, api):
         """Initialize the thermostat."""
         self._name = "Nest Thermostat"
-        self._unit_of_measurement = UnitOfTemperature.CELSIUS
+        self._unit_of_measurement = TEMP_CELSIUS
         self._fan_modes = [FAN_ON, FAN_AUTO]
         self.device_id = device_id
 
@@ -99,7 +99,7 @@ class NestClimate(ClimateEntity):
         if self.device.device_data[device_id]['can_heat'] \
                 and self.device.device_data[device_id]['can_cool']:
             self._operation_list.append(HVAC_MODE_AUTO)
-            self._support_flags |= ClimateEntityFeature.TARGET_TEMPERATURE_RANGE
+            self._support_flags |= SUPPORT_TARGET_TEMPERATURE_RANGE
 
         # Add supported nest thermostat features
         if self.device.device_data[device_id]['can_heat']:
@@ -115,7 +115,7 @@ class NestClimate(ClimateEntity):
             self._support_flags = self._support_flags | SUPPORT_FAN_MODE
 
         if self.device.device_data[device_id]['target_humidity_enabled']:
-            self._support_flags = self._support_flags | ClimateEntityFeature.TARGET_HUMIDITY
+            self._support_flags = self._support_flags | SUPPORT_TARGET_HUMIDITY
             
 
     @property
