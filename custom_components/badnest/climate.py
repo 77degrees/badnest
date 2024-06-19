@@ -1,6 +1,9 @@
 """Demo platform that offers a fake climate device."""
-from datetime import datetime
+from datetime import datetime, timedelta
 import logging
+
+_LOGGER = logging.getLogger(__name__)
+SCAN_INTERVAL = timedelta(seconds=30)  # Adjust the seconds as needed
 
 from homeassistant.components.climate import ClimateEntity
 from homeassistant.components.climate.const import (
@@ -146,7 +149,7 @@ class NestClimate(ClimateEntity):
     @property
     def current_temperature(self):
         """Return the current temperature."""
-        return self.device.device_data[self.device_id]['current_temperature']
+        return (self.device.device_data[self.device_id]['current_temperature'] * 9/5) + 32
 
     @property
     def current_humidity(self):
@@ -175,29 +178,23 @@ class NestClimate(ClimateEntity):
                 != NEST_MODE_HEAT_COOL \
                 and not self.device.device_data[self.device_id]['eco']:
             return \
-                self.device.device_data[self.device_id]['target_temperature']
+                (self.device.device_data[self.device_id]['target_temperature'] * 9/5) + 32
         return None
 
     @property
     def target_temperature_high(self):
         """Return the highbound target temperature we try to reach."""
-        if self.device.device_data[self.device_id]['mode'] \
-                == NEST_MODE_HEAT_COOL \
+        if self.device.device_data[self.device_id]['mode'] == NEST_MODE_HEAT_COOL \
                 and not self.device.device_data[self.device_id]['eco']:
-            return \
-                self.device. \
-                device_data[self.device_id]['target_temperature_high']
+            return (self.device.device_data[self.device_id]['target_temperature_high'] * 9/5) + 32
         return None
-
+    
     @property
     def target_temperature_low(self):
         """Return the lowbound target temperature we try to reach."""
-        if self.device.device_data[self.device_id]['mode'] \
-                == NEST_MODE_HEAT_COOL \
+        if self.device.device_data[self.device_id]['mode'] == NEST_MODE_HEAT_COOL \
                 and not self.device.device_data[self.device_id]['eco']:
-            return \
-                self.device. \
-                device_data[self.device_id]['target_temperature_low']
+            return (self.device.device_data[self.device_id]['target_temperature_low'] * 9/5) + 32
         return None
 
     @property
@@ -320,6 +317,7 @@ class NestClimate(ClimateEntity):
                 need_eco,
             )
 
-    def update(self):
+            _LOGGER.info('Updating climate device at: %s', datetime.now())
+def update(self):
         """Updates data"""
         self.device.update()
