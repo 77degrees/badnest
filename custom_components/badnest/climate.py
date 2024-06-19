@@ -115,7 +115,7 @@ class NestClimate(ClimateEntity):
             self._support_flags = self._support_flags | SUPPORT_FAN_MODE
 
         if self.device.device_data[device_id]['target_humidity_enabled']:
-            self._support_flags = self._support_flags | SUPPORT_TARGET_HUMIDITY
+            self._support_flags = self._support_flags | ClimateEntityFeature.TARGET_HUMIDITY
             
 
     @property
