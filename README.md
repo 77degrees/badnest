@@ -93,7 +93,7 @@ The values of `"issue_token"` and `"cookie"` are specific to your Google Account
 9. Several network calls will appear in the Dev Tools window. Click on the last `iframe` call.
 10. <mark>In the Headers tab, under Request Headers, copy the entire `cookie` (beginning `NID=...` - **include the whole string which is several lines long and has many field/value pairs** - do not include the `cookie:` name). This is your `"cookie"` in `configuration.yaml`.</mark>
 
-<mark>OCAK= is now NID=</mark>
+<mark>"OCAK=" is now "NID="</mark>
 
 ## Notes
 
