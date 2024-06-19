@@ -7,7 +7,7 @@ from .const import DOMAIN
 from homeassistant.const import (
     ATTR_BATTERY_LEVEL,
     SensorDeviceClass.TEMPERATURE,
-    UnitOfTemperature.FAHRENHEIT
+    UnitOfTemperature.CELSIUS
 )
 
 _LOGGER = logging.getLogger(__name__)
@@ -50,7 +50,7 @@ class NestTemperatureSensor(Entity):
     def __init__(self, device_id, api):
         """Initialize the sensor."""
         self._name = "Nest Temperature Sensor"
-        self._unit_of_measurement = UnitOfTemperature.FAHRENHEIT
+        self._unit_of_measurement = UnitOfTemperature.CELSIUS
         self.device_id = device_id
         self.device = api
 
