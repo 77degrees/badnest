@@ -4,10 +4,14 @@ from homeassistant.helpers.entity import Entity
 
 from .const import DOMAIN
 
+from datetime import datetime, timedelta
+
+SCAN_INTERVAL = timedelta(seconds=30)  # Adjust the seconds as needed
+
 from homeassistant.const import (
     ATTR_BATTERY_LEVEL,
     DEVICE_CLASS_TEMPERATURE,
-    TEMP_FAHRENHEIT,
+    TEMP_FAHRENHEIT
 )
 
 _LOGGER = logging.getLogger(__name__)
@@ -67,7 +71,8 @@ class NestTemperatureSensor(Entity):
     @property
     def state(self):
         """Return the state of the sensor."""
-        return self.device.device_data[self.device_id]['temperature']
+        celsius_temperature = self.device.device_data[self.device_id]['temperature']
+        return (9/5 * celsius_temperature) + 32
 
     @property
     def device_class(self):
@@ -120,4 +125,6 @@ class NestProtectSensor(Entity):
 
     def update(self):
         """Get the latest data from the Protect and updates the states."""
+        _LOGGER.info('Updating sensor at: %s', datetime.now())
         self.device.update()
+
