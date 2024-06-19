@@ -1,6 +1,5 @@
 # badnest
-(copy of https://github.com/stanwebber/badnest) A bad Nest integration that uses the web api to work after Works with Nest was shut down (bad Google, go sit in your corner and think about what you did)
-
+(copy of https://github.com/stanwebber/badnest) A bad Nest integration that uses the web api to work after Works with Nest was shut down
 ## Why is it bad
 
 This isn't an advertised or public API, it's still better than web scraping, but will never be as reliable as the original API
