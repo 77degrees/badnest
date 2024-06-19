@@ -15,13 +15,13 @@ from homeassistant.components.climate.const import (
     SUPPORT_FAN_MODE,
     SUPPORT_PRESET_MODE,
     SUPPORT_TARGET_TEMPERATURE,
-    SUPPORT_TARGET_TEMPERATURE_RANGE,
-    SUPPORT_TARGET_HUMIDITY,
+    ClimateEntityFeature.TARGET_TEMPERATURE_RANGE,
+    ClimateEntityFeature.TARGET_HUMIDITY,
     PRESET_ECO,
     PRESET_NONE,
-    CURRENT_HVAC_HEAT,
-    CURRENT_HVAC_IDLE,
-    CURRENT_HVAC_COOL,
+    HVACAction.HEATING,
+    HVACAction.IDLE,
+    HVACAction.COOLING,
 )
 from homeassistant.const import (
     ATTR_TEMPERATURE,
@@ -46,9 +46,9 @@ MODE_HASS_TO_NEST = {
 }
 
 ACTION_NEST_TO_HASS = {
-    "off": CURRENT_HVAC_IDLE,
-    "heating": CURRENT_HVAC_HEAT,
-    "cooling": CURRENT_HVAC_COOL,
+    "off": HVACAction.IDLE,
+    "heating": HVACAction.HEATING,
+    "cooling": HVACAction.COOLING,
 }
 
 MODE_NEST_TO_HASS = {v: k for k, v in MODE_HASS_TO_NEST.items()}
@@ -99,7 +99,7 @@ class NestClimate(ClimateEntity):
         if self.device.device_data[device_id]['can_heat'] \
                 and self.device.device_data[device_id]['can_cool']:
             self._operation_list.append(HVAC_MODE_AUTO)
-            self._support_flags |= SUPPORT_TARGET_TEMPERATURE_RANGE
+            self._support_flags |= ClimateEntityFeature.TARGET_TEMPERATURE_RANGE
 
         # Add supported nest thermostat features
         if self.device.device_data[device_id]['can_heat']:
