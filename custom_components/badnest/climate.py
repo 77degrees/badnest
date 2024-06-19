@@ -2,7 +2,7 @@
 from datetime import datetime
 import logging
 
-from homeassistant.components.climate import ClimateEntity, ClimateEntityFeature, HVACAction
+from homeassistant.components.climate import ClimateEntity
 from homeassistant.components.climate.const import (
     ATTR_TARGET_TEMP_HIGH,
     ATTR_TARGET_TEMP_LOW,
@@ -12,14 +12,21 @@ from homeassistant.components.climate.const import (
     HVAC_MODE_COOL,
     HVAC_MODE_HEAT,
     HVAC_MODE_OFF,
+    SUPPORT_FAN_MODE,
+    SUPPORT_PRESET_MODE,
+    SUPPORT_TARGET_TEMPERATURE,
+    SUPPORT_TARGET_TEMPERATURE_RANGE,
+    SUPPORT_TARGET_HUMIDITY,
     PRESET_ECO,
     PRESET_NONE,
+    CURRENT_HVAC_HEAT,
+    CURRENT_HVAC_IDLE,
+    CURRENT_HVAC_COOL,
 )
 from homeassistant.const import (
     ATTR_TEMPERATURE,
-    UnitOfTemperature,
+    UnitOfTemperature.FAHRENHEIT,
 )
-import homeassistant.util.temperature as temperature_util
 
 from .const import (
     DOMAIN,
@@ -39,9 +46,9 @@ MODE_HASS_TO_NEST = {
 }
 
 ACTION_NEST_TO_HASS = {
-    "off": HVACAction.IDLE,
-    "heating": HVACAction.HEATING,
-    "cooling": HVACAction.COOLING,
+    "off": CURRENT_HVAC_IDLE,
+    "heating": CURRENT_HVAC_HEAT,
+    "cooling": CURRENT_HVAC_COOL,
 }
 
 MODE_NEST_TO_HASS = {v: k for k, v in MODE_HASS_TO_NEST.items()}
@@ -71,21 +78,8 @@ async def async_setup_platform(hass,
     async_add_entities(thermostats)
 
 
-def celsius_to_fahrenheit(celsius):
-    """Convert Celsius to Fahrenheit."""
-    return temperature_util.celsius_to_fahrenheit(celsius)
-
-
 class NestClimate(ClimateEntity):
     """Representation of a Nest climate device."""
-
-    _attr_supported_features = (
-        ClimateEntityFeature.TARGET_TEMPERATURE_RANGE |
-        ClimateEntityFeature.TARGET_HUMIDITY |
-        ClimateEntityFeature.TARGET_TEMPERATURE |
-        ClimateEntityFeature.PRESET_MODE |
-        ClimateEntityFeature.FAN_MODE
-    )
 
     def __init__(self, device_id, api):
         """Initialize the thermostat."""
@@ -93,14 +87,21 @@ class NestClimate(ClimateEntity):
         self._unit_of_measurement = UnitOfTemperature.FAHRENHEIT
         self._fan_modes = [FAN_ON, FAN_AUTO]
         self.device_id = device_id
-        self.device = api
 
+        # Set the default supported features
+        self._support_flags = SUPPORT_TARGET_TEMPERATURE | SUPPORT_PRESET_MODE
+
+        # Not all nest devices support cooling and heating remove unused
         self._operation_list = []
+
+        self.device = api
 
         if self.device.device_data[device_id]['can_heat'] \
                 and self.device.device_data[device_id]['can_cool']:
             self._operation_list.append(HVAC_MODE_AUTO)
+            self._support_flags |= SUPPORT_TARGET_TEMPERATURE_RANGE
 
+        # Add supported nest thermostat features
         if self.device.device_data[device_id]['can_heat']:
             self._operation_list.append(HVAC_MODE_HEAT)
 
@@ -108,6 +109,14 @@ class NestClimate(ClimateEntity):
             self._operation_list.append(HVAC_MODE_COOL)
 
         self._operation_list.append(HVAC_MODE_OFF)
+
+        # feature of device
+        if self.device.device_data[device_id]['has_fan']:
+            self._support_flags = self._support_flags | SUPPORT_FAN_MODE
+
+        if self.device.device_data[device_id]['target_humidity_enabled']:
+            self._support_flags = self._support_flags | SUPPORT_TARGET_HUMIDITY
+            
 
     @property
     def unique_id(self):
@@ -122,7 +131,7 @@ class NestClimate(ClimateEntity):
     @property
     def supported_features(self):
         """Return the list of supported features."""
-        return self._attr_supported_features
+        return self._support_flags
 
     @property
     def should_poll(self):
@@ -137,10 +146,7 @@ class NestClimate(ClimateEntity):
     @property
     def current_temperature(self):
         """Return the current temperature."""
-        temp_celsius = self.device.device_data[self.device_id]['current_temperature']
-        if self._unit_of_measurement == UnitOfTemperature.FAHRENHEIT:
-            return celsius_to_fahrenheit(temp_celsius)
-        return temp_celsius
+        return self.device.device_data[self.device_id]['current_temperature']
 
     @property
     def current_humidity(self):
@@ -168,10 +174,8 @@ class NestClimate(ClimateEntity):
         if self.device.device_data[self.device_id]['mode'] \
                 != NEST_MODE_HEAT_COOL \
                 and not self.device.device_data[self.device_id]['eco']:
-            temp_celsius = self.device.device_data[self.device_id]['target_temperature']
-            if self._unit_of_measurement == UnitOfTemperature.FAHRENHEIT:
-                return celsius_to_fahrenheit(temp_celsius)
-            return temp_celsius
+            return \
+                self.device.device_data[self.device_id]['target_temperature']
         return None
 
     @property
@@ -180,10 +184,9 @@ class NestClimate(ClimateEntity):
         if self.device.device_data[self.device_id]['mode'] \
                 == NEST_MODE_HEAT_COOL \
                 and not self.device.device_data[self.device_id]['eco']:
-            temp_celsius = self.device.device_data[self.device_id]['target_temperature_high']
-            if self._unit_of_measurement == UnitOfTemperature.FAHRENHEIT:
-                return celsius_to_fahrenheit(temp_celsius)
-            return temp_celsius
+            return \
+                self.device. \
+                device_data[self.device_id]['target_temperature_high']
         return None
 
     @property
@@ -192,10 +195,9 @@ class NestClimate(ClimateEntity):
         if self.device.device_data[self.device_id]['mode'] \
                 == NEST_MODE_HEAT_COOL \
                 and not self.device.device_data[self.device_id]['eco']:
-            temp_celsius = self.device.device_data[self.device_id]['target_temperature_low']
-            if self._unit_of_measurement == UnitOfTemperature.FAHRENHEIT:
-                return celsius_to_fahrenheit(temp_celsius)
-            return temp_celsius
+            return \
+                self.device. \
+                device_data[self.device_id]['target_temperature_low']
         return None
 
     @property
@@ -210,6 +212,7 @@ class NestClimate(ClimateEntity):
         """Return hvac target hvac state."""
         if self.device.device_data[self.device_id]['mode'] is None \
                 or self.device.device_data[self.device_id]['eco']:
+            # We assume the first operation in operation list is the main one
             return self._operation_list[0]
 
         return MODE_NEST_TO_HASS[
@@ -238,10 +241,12 @@ class NestClimate(ClimateEntity):
     def fan_mode(self):
         """Return whether the fan is on."""
         if self.device.device_data[self.device_id]['has_fan']:
+            # Return whether the fan is on
             if self.device.device_data[self.device_id]['fan']:
                 return FAN_ON
             else:
                 return FAN_AUTO
+        # No Fan available so disable slider
         return None
 
     @property
@@ -256,11 +261,9 @@ class NestClimate(ClimateEntity):
         temp = None
         target_temp_low = kwargs.get(ATTR_TARGET_TEMP_LOW)
         target_temp_high = kwargs.get(ATTR_TARGET_TEMP_HIGH)
-        if self.device.device_data[self.device_id]['mode'] == NEST_MODE_HEAT_COOL:
+        if self.device.device_data[self.device_id]['mode'] == \
+                NEST_MODE_HEAT_COOL:
             if target_temp_low is not None and target_temp_high is not None:
-                if self._unit_of_measurement == UnitOfTemperature.FAHRENHEIT:
-                    target_temp_low = temperature_util.fahrenheit_to_celsius(target_temp_low)
-                    target_temp_high = temperature_util.fahrenheit_to_celsius(target_temp_high)
                 self.device.thermostat_set_temperature(
                     self.device_id,
                     target_temp_low,
@@ -269,8 +272,6 @@ class NestClimate(ClimateEntity):
         else:
             temp = kwargs.get(ATTR_TEMPERATURE)
             if temp is not None:
-                if self._unit_of_measurement == UnitOfTemperature.FAHRENHEIT:
-                    temp = temperature_util.fahrenheit_to_celsius(temp)
                 self.device.thermostat_set_temperature(
                     self.device_id,
                     temp,
@@ -320,5 +321,5 @@ class NestClimate(ClimateEntity):
             )
 
     def update(self):
-        """Updates data."""
+        """Updates data"""
         self.device.update()
