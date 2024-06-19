@@ -13,7 +13,7 @@ This isn't an advertised or public API, it's still better than web scraping, but
 - Nest Thermostat support
 - Nest Thermostat Sensor support
 - Nest Camera support
-- <span style="background-color: #FFFF00">Thermostat and Room sensors report in Fahrenheit</span>
+- <mark>Thermostat and Room sensors report in Fahrenheit</mark>
 
 ![Screenshot_1](https://github.com/77degrees/badnest/assets/80057302/b298ea0b-46fe-4837-b5a7-826d024a8a0a)
 ![Screenshot_2](https://github.com/77degrees/badnest/assets/80057302/3ba0e8d2-4b20-42eb-9535-32a3d7cae920)
