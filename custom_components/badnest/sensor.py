@@ -7,7 +7,7 @@ from .const import DOMAIN
 from homeassistant.const import (
     ATTR_BATTERY_LEVEL,
     DEVICE_CLASS_TEMPERATURE,
-    UnitOfTemperature.FAHRENHEIT
+    UnitOfTemperature.FAHRENHEIT,
 )
 
 _LOGGER = logging.getLogger(__name__)
