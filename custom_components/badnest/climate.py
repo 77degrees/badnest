@@ -25,7 +25,7 @@ from homeassistant.components.climate.const import (
 )
 from homeassistant.const import (
     ATTR_TEMPERATURE,
-    UnitOfTemperature.FAHRENHEIT,
+    TEMP_FAHRENHEIT,
 )
 
 from .const import (
@@ -84,7 +84,7 @@ class NestClimate(ClimateEntity):
     def __init__(self, device_id, api):
         """Initialize the thermostat."""
         self._name = "Nest Thermostat"
-        self._unit_of_measurement = UnitOfTemperature.FAHRENHEIT
+        self._unit_of_measurement = TEMP_FAHRENHEIT
         self._fan_modes = [FAN_ON, FAN_AUTO]
         self.device_id = device_id
 
