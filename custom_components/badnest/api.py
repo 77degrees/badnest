@@ -10,7 +10,7 @@ USER_AGENT = "Mozilla/5.0 (Macintosh; Intel Mac OS X 10_14_5) " \
 URL_JWT = "https://nestauthproxyservice-pa.googleapis.com/v1/issue_jwt"
 
 # Nest website's (public) API key
-NEST_API_KEY = "AIzaSyAdkSIMNc51XGNEAYWasX9UOWkS5P6sZE4"
+NEST_API_KEY = "API KEY"
 
 KNOWN_BUCKET_TYPES = [
     # Thermostats
